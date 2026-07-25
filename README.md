@@ -2,6 +2,13 @@
 
 Authenticate `sudo` with Touch ID instead of typing your password — including inside **tmux**.
 
+<p align="center">
+  <img src="docs/touchid-prompt.png" width="320"
+       alt="macOS authentication dialog titled sudo, reading: sudo is trying to execute a command as administrator. Touch ID or enter your password to allow this. Buttons: Use Password, Cancel.">
+</p>
+
+<p align="center"><em>What you get instead of a password prompt. Touch the sensor, or fall back to your password.</em></p>
+
 ```console
 $ sudo touchid-sudo
 Wrote /etc/pam.d/sudo_local:
