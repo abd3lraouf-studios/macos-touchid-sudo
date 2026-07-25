@@ -1,0 +1,253 @@
+#!/bin/bash
+# touchid-sudo — enable Touch ID authentication for sudo on macOS.
+#
+# Manages /etc/pam.d/sudo_local, the file /etc/pam.d/sudo includes and which
+# survives macOS updates. Safe to run repeatedly: the previous configuration is
+# backed up and automatically restored if the resulting PAM stack fails to
+# validate, so a bad edit can never leave you unable to run sudo.
+#
+# https://github.com/App-Builders-Gang/macos-touchid-sudo
+# MIT licensed.
+set -euo pipefail
+
+VERSION=1.0.0
+
+# --- configuration ----------------------------------------------------------
+# The TOUCHID_SUDO_* variables exist so the test suite can exercise this script
+# against fixture files without root. Do not set them in normal use.
+TARGET=${TOUCHID_SUDO_TARGET:-/etc/pam.d/sudo_local}
+PAM_SUDO=${TOUCHID_SUDO_PAM_SUDO:-/etc/pam.d/sudo}
+SKIP_ROOT=${TOUCHID_SUDO_SKIP_ROOT:-0}
+FAKE_VALIDATION=${TOUCHID_SUDO_FAKE_VALIDATION:-}
+
+BACKUP="$TARGET.bak"
+TID_MODULE=/usr/lib/pam/pam_tid.so
+MARKER="# managed by touchid-sudo"
+
+# pam_reattach reattaches the sudo process to the user's GUI session so the
+# Touch ID prompt can appear from inside tmux/screen. Homebrew ARM, Homebrew
+# Intel, and MacPorts locations, in that order.
+REATTACH_PATHS=(
+  /opt/homebrew/lib/pam/pam_reattach.so
+  /usr/local/lib/pam/pam_reattach.so
+  /opt/local/lib/pam/pam_reattach.so
+)
+
+die()  { printf 'error: %s\n' "$*" >&2; exit 1; }
+info() { printf '%s\n' "$*"; }
+warn() { printf 'warning: %s\n' "$*" >&2; }
+
+usage() {
+  cat <<'EOF'
+touchid-sudo — enable Touch ID authentication for sudo on macOS.
+
+  sudo touchid-sudo             enable Touch ID for sudo
+  sudo touchid-sudo --disable   revert to password-only
+       touchid-sudo --status    show current state (no root needed)
+       touchid-sudo --version   print version
+       touchid-sudo --help      this message
+
+Manages /etc/pam.d/sudo_local, which /etc/pam.d/sudo includes and which
+survives macOS updates. Safe to run repeatedly: the previous config is backed
+up and automatically restored if the resulting PAM stack fails validation.
+
+Requires macOS 14 (Sonoma) or later and a Mac with Touch ID.
+Install pam-reattach (brew install pam-reattach) for Touch ID inside tmux.
+EOF
+}
+
+# The user we are configuring Touch ID for — the human who invoked sudo.
+target_user() { printf '%s' "${SUDO_USER:-${USER:-$(id -un)}}"; }
+
+find_reattach() {
+  local p
+  for p in "${REATTACH_PATHS[@]}"; do
+    [[ -f $p ]] && { printf '%s' "$p"; return 0; }
+  done
+  return 1
+}
+
+is_enabled() {
+  [[ -f $TARGET ]] && grep -qE '^[[:space:]]*auth.*pam_tid\.so' "$TARGET"
+}
+
+show_status() {
+  local reattach
+  info "Touch ID for sudo"
+  if is_enabled; then
+    info "  state:       ENABLED"
+  else
+    info "  state:       disabled"
+  fi
+  if reattach=$(find_reattach); then
+    if [[ -f $TARGET ]] && grep -qF "$reattach" "$TARGET"; then
+      info "  tmux/screen: supported (pam_reattach active)"
+    else
+      info "  tmux/screen: pam_reattach installed but not configured — re-run to enable"
+    fi
+  else
+    info "  tmux/screen: not supported (pam_reattach not installed)"
+  fi
+  if [[ -f $TARGET ]]; then
+    info "  config:      $TARGET"
+    sed 's/^/    | /' "$TARGET"
+  fi
+}
+
+# --- argument handling ------------------------------------------------------
+MODE=enable
+case "${1:-}" in
+  --status|-s)       show_status; exit 0 ;;
+  --disable|--off)   MODE=disable ;;
+  --version|-V)      info "touchid-sudo $VERSION"; exit 0 ;;
+  --help|-h)         usage; exit 0 ;;
+  "")                ;;
+  *)                 die "unknown option: $1 (try --help)" ;;
+esac
+
+if (( ! SKIP_ROOT )); then
+  if [[ $EUID -ne 0 ]]; then
+    info "Re-running with sudo..."
+    exec sudo "$0" "$@"
+  fi
+  [[ -n ${SUDO_USER:-} && $SUDO_USER != root ]] \
+    || die "run via sudo from your normal user account, not as root directly"
+fi
+
+USER_NAME=$(target_user)
+
+# --- preflight --------------------------------------------------------------
+[[ $(uname -s) == Darwin ]] || die "macOS only"
+
+# /etc/pam.d/sudo must include sudo_local — true on macOS 14 (Sonoma) and later.
+# Hand-editing /etc/pam.d/sudo instead is not update-safe, so refuse rather than
+# silently doing the unsafe thing.
+grep -qE '^[[:space:]]*auth[[:space:]]+include[[:space:]]+sudo_local' "$PAM_SUDO" \
+  || die "$PAM_SUDO does not include sudo_local — macOS 14 (Sonoma) or later is required"
+
+[[ -e ${TID_MODULE}.2 || -e $TID_MODULE ]] \
+  || die "pam_tid.so not found — this Mac does not support Touch ID"
+
+if [[ $MODE == enable ]] && command -v bioutil >/dev/null 2>&1; then
+  # Is a fingerprint actually enrolled? `bioutil -c` prints e.g.
+  #   User 501:	1 biometric template(s)
+  # `bioutil -r` does NOT report a count — do not use it for this.
+  # Unparseable output means "unknown", so stay quiet rather than warn falsely.
+  templates=$(sudo -u "$USER_NAME" bioutil -c 2>/dev/null \
+    | grep -oE '[0-9]+ biometric template' | grep -oE '^[0-9]+' || true)
+  if [[ -n $templates && $templates -eq 0 ]]; then
+    warn "no fingerprints enrolled for $USER_NAME — enroll one in System Settings > Touch ID & Password, or sudo will just fall back to your password"
+  fi
+fi
+
+# --- build the desired config ----------------------------------------------
+REATTACH=$(find_reattach || true)
+
+new_config() {
+  echo "# sudo_local: local config file which survives system update and is included for sudo"
+  echo "$MARKER"
+  if [[ $MODE == enable ]]; then
+    # pam_reattach must come first, and stays `optional` so that a Homebrew
+    # upgrade which moves or breaks the module degrades to password auth
+    # instead of locking the user out.
+    [[ -n $REATTACH ]] && echo "auth       optional       $REATTACH"
+    echo "auth       sufficient     pam_tid.so"
+  fi
+  # Preserve any lines we did not put there ourselves.
+  if [[ -f $TARGET ]]; then
+    grep -vE '^[[:space:]]*(#|$)|pam_tid\.so|pam_reattach\.so' "$TARGET" || true
+  fi
+}
+
+DESIRED=$(new_config)
+
+# When disabling, if nothing but our own header comments would be left, delete
+# the file outright instead of leaving an inert stub — back to factory state.
+REMOVE=0
+if [[ $MODE == disable ]] && ! grep -qvE '^[[:space:]]*(#|$)' <<<"$DESIRED"; then
+  REMOVE=1
+fi
+
+if (( REMOVE )); then
+  if [[ ! -f $TARGET ]]; then
+    info "Already disabled — no changes needed."
+    exit 0
+  fi
+elif [[ -f $TARGET ]] && [[ $DESIRED == "$(cat "$TARGET")" ]]; then
+  info "Already configured — no changes needed."
+  echo
+  show_status
+  exit 0
+fi
+
+# --- install, with rollback on failure --------------------------------------
+HAD_BACKUP=0
+if [[ -f $TARGET ]]; then
+  cp -p "$TARGET" "$BACKUP"
+  HAD_BACKUP=1
+  info "Backed up existing config to $BACKUP"
+fi
+
+rollback() {
+  warn "restoring previous configuration"
+  if (( HAD_BACKUP )); then
+    cp -p "$BACKUP" "$TARGET"
+  else
+    rm -f "$TARGET"
+  fi
+}
+
+if (( REMOVE )); then
+  rm -f "$TARGET"
+else
+  printf '%s\n' "$DESIRED" > "$TARGET"
+  if (( ! SKIP_ROOT )); then
+    chown root:wheel "$TARGET"
+    chmod 444 "$TARGET"
+  fi
+fi
+
+# Validate by running sudo as the invoking user with -n (never prompt). A
+# healthy stack answers "a password is required"; a broken one names the PAM
+# failure. Anything that smells like a PAM error means we revert.
+if [[ -n $FAKE_VALIDATION ]]; then
+  validation=$FAKE_VALIDATION
+else
+  validation=$(sudo -u "$USER_NAME" -H sudo -n -k true 2>&1 || true)
+fi
+if grep -qiE 'pam|parse error|module is unknown|cannot open' <<<"$validation"; then
+  rollback
+  die "PAM validation failed, configuration reverted. sudo said: $validation"
+fi
+
+if (( REMOVE )); then
+  info "Removed $TARGET"
+else
+  info "Wrote $TARGET:"
+  sed 's/^/  /' "$TARGET"
+fi
+
+# --- tmux hint --------------------------------------------------------------
+if [[ $MODE == enable && -z $REATTACH ]] && command -v tmux >/dev/null 2>&1; then
+  echo
+  warn "tmux is installed but pam_reattach is not — Touch ID will not work inside tmux/screen"
+  # `command` is a shell builtin, so it must run inside a shell under sudo.
+  if [[ -t 0 ]] && sudo -u "$USER_NAME" -H bash -lc 'command -v brew' >/dev/null 2>&1; then
+    read -r -p "Install pam-reattach via Homebrew now? [y/N] " reply
+    if [[ $reply == [Yy]* ]]; then
+      sudo -u "$USER_NAME" -H brew install pam-reattach && exec "$0" "$@"
+    fi
+  else
+    info "  fix: brew install pam-reattach && sudo $0"
+  fi
+fi
+
+echo
+# Validation ran `sudo -k` as the invoking user, so their sudo timestamp is
+# cleared and the next sudo re-authenticates — which is what you want to test.
+if [[ $MODE == enable ]]; then
+  info "Done. Your sudo timestamp was cleared; the next sudo re-authenticates."
+  info "Test with:  sudo true"
+else
+  info "Touch ID for sudo disabled. Your sudo timestamp was cleared."
+fi

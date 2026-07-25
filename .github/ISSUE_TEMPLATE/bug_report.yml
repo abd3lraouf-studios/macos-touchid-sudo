@@ -1,0 +1,63 @@
+name: Bug report
+description: Something went wrong with touchid-sudo
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If `sudo` itself is broken and you cannot fix it, boot to Recovery and delete
+        `/Volumes/Macintosh HD/etc/pam.d/sudo_local`, then file this report.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: status
+    attributes:
+      label: Output of `touchid-sudo --status`
+      render: text
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `touchid-sudo --version`
+    validations:
+      required: true
+
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      description: Output of `sw_vers -productVersion`
+    validations:
+      required: true
+
+  - type: dropdown
+    id: context
+    attributes:
+      label: Where does the problem occur?
+      multiple: true
+      options:
+        - Terminal.app
+        - iTerm2
+        - tmux or screen
+        - VS Code / JetBrains embedded terminal
+        - SSH session
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Command output
+      description: The full output of the command that failed.
+      render: shell

@@ -1,0 +1,33 @@
+name: Feature request
+description: Suggest an improvement
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please read the ground rules in CONTRIBUTING.md first — some changes are
+        deliberately out of scope because they could lock users out of `sudo`.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the situation you hit, not just the feature you want.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety
+      options:
+        - label: This keeps `pam_tid.so` as `sufficient` (failure falls through to password auth)
+        - label: This does not require editing `/etc/pam.d/sudo` directly
+        - label: This adds no new runtime dependencies

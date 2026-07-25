@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, macos-15, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: brew install shellcheck
+
+      - name: Lint
+        run: make lint
+
+      - name: Test
+        run: make test
+
+      - name: Verify installer is syntactically valid
+        run: bash -n install.sh
+
+      - name: Verify informational modes need no root
+        run: |
+          ./bin/touchid-sudo --version
+          ./bin/touchid-sudo --help
+          ./bin/touchid-sudo --status
+
+      - name: Verify the runner's own /etc/pam.d/sudo is untouched
+        run: |
+          # The suite must never write outside its temp fixtures.
+          test ! -e /etc/pam.d/sudo_local || (echo "sudo_local was created!" && exit 1)
