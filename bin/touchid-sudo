@@ -6,7 +6,7 @@
 # backed up and automatically restored if the resulting PAM stack fails to
 # validate, so a bad edit can never leave you unable to run sudo.
 #
-# https://github.com/App-Builders-Gang/macos-touchid-sudo
+# https://github.com/abd3lraouf-studios/macos-touchid-sudo
 # MIT licensed.
 set -euo pipefail
 

@@ -12,7 +12,7 @@ Thanks for helping out. This tool edits the authentication path of `sudo`, so th
 ## Setup
 
 ```bash
-git clone https://github.com/App-Builders-Gang/macos-touchid-sudo.git
+git clone https://github.com/abd3lraouf-studios/macos-touchid-sudo.git
 cd macos-touchid-sudo
 brew install shellcheck
 make test

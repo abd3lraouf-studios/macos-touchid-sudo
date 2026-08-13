@@ -31,20 +31,20 @@ macOS has shipped the `pam_tid.so` module for years, and since Sonoma there is a
 **Homebrew** (recommended):
 
 ```bash
-brew install App-Builders-Gang/tap/macos-touchid-sudo
+brew install abd3lraouf-studios/tap/macos-touchid-sudo
 sudo touchid-sudo
 ```
 
 **One-liner** — detects your machine, offers `pam-reattach` if you use tmux, and can run the setup for you:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/App-Builders-Gang/macos-touchid-sudo/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/abd3lraouf-studios/macos-touchid-sudo/main/install.sh | bash
 ```
 
 **From source**:
 
 ```bash
-git clone https://github.com/App-Builders-Gang/macos-touchid-sudo.git
+git clone https://github.com/abd3lraouf-studios/macos-touchid-sudo.git
 cd macos-touchid-sudo
 make install
 sudo touchid-sudo

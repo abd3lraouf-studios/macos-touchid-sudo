@@ -1,7 +1,7 @@
 #!/bin/bash
 # Installer for touchid-sudo.
 #
-#   curl -fsSL https://raw.githubusercontent.com/App-Builders-Gang/macos-touchid-sudo/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/abd3lraouf-studios/macos-touchid-sudo/main/install.sh | bash
 #
 # Detects the machine it is running on: refuses non-macOS and pre-Sonoma
 # systems, picks a writable install prefix, offers pam-reattach when tmux is
@@ -14,7 +14,7 @@
 #   TOUCHID_SUDO_NO_PROMPT=1     never prompt; install the command only
 set -euo pipefail
 
-REPO=${TOUCHID_SUDO_REPO:-App-Builders-Gang/macos-touchid-sudo}
+REPO=${TOUCHID_SUDO_REPO:-abd3lraouf-studios/macos-touchid-sudo}
 REF=${TOUCHID_SUDO_REF:-main}
 SRC="https://raw.githubusercontent.com/$REPO/$REF/bin/touchid-sudo"
 AUTORUN=${TOUCHID_SUDO_AUTORUN:-0}
