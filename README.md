@@ -1,6 +1,12 @@
+<p align="center">
+  <img src="assets/icon.png" alt="" width="112" height="112">
+</p>
+
 # macos-touchid-sudo
 
 Authenticate `sudo` with Touch ID instead of typing your password — including inside **tmux**.
+
+[**Product page → abd3lraouf.dev/work/touch-id-for-sudo**](https://abd3lraouf.dev/work/touch-id-for-sudo/)
 
 <p align="center">
   <img src="docs/touchid-prompt.png" width="320"
