@@ -139,6 +139,10 @@ make lint    # shellcheck
 
 The suite runs the real script against fixture files via `TOUCHID_SUDO_*` environment hooks, covering enable, idempotency, disable, line preservation, unsupported systems, and the rollback path. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Press & marketing assets
+
+Icons and the prompt screenshot live in [`art/`](art/), with the canonical product record — naming, boilerplate and indexed image dimensions — in [`art/assets.json`](art/assets.json). Product page: [abd3lraouf.dev/work/touch-id-for-sudo](https://abd3lraouf.dev/work/touch-id-for-sudo/).
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "product": {
+    "slug": "touch-id-for-sudo",
+    "name": "Touch ID for sudo",
+    "category": "tool",
+    "headline": {
+      "lead": "Authenticate",
+      "lift": "sudo with Touch ID"
+    },
+    "tagline": "including inside tmux",
+    "summary": "Enables Touch ID authentication for sudo, and keeps it working inside tmux.",
+    "platform": "macOS 14+",
+    "licence": {
+      "label": "MIT",
+      "kind": "oss",
+      "price": "Free"
+    },
+    "distribution": "GitHub releases, source on GitHub",
+    "openSource": true,
+    "mono": null
+  },
+  "links": {
+    "repo": "https://github.com/abd3lraouf-studios/macos-touchid-sudo",
+    "website": "https://abd3lraouf.dev/work/touch-id-for-sudo/"
+  },
+  "press": {
+    "short": "Touch ID for sudo enables fingerprint authentication for sudo on macOS 14+, including inside tmux. MIT licensed.",
+    "long": "macOS can authenticate sudo with Touch ID, but the configuration does not survive system updates and breaks inside tmux. Touch ID for sudo sets it up correctly, keeps it working across updates, and handles the tmux case that the stock configuration misses. MIT licensed and open source.",
+    "naming": "Written \"Touch ID for sudo\" — \"Touch ID\" capitalised as Apple styles it, \"sudo\" always lowercase. Touch ID is an Apple trademark and the project is unaffiliated."
+  },
+  "assets": [
+    {
+      "role": "icon-card",
+      "file": "touch-id-for-sudo-icon.png",
+      "label": "App icon, 256px",
+      "note": "PNG",
+      "width": 256,
+      "height": 256
+    },
+    {
+      "role": "icon-vector",
+      "file": "touch-id-for-sudo-icon.svg",
+      "label": "App icon, vector",
+      "note": "SVG",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "role": "icon-press",
+      "file": "touch-id-for-sudo-icon-512.png",
+      "label": "App icon, 512px",
+      "note": "PNG",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "role": "screenshot",
+      "file": "touchid-prompt.png",
+      "label": "Touch ID prompt",
+      "note": "PNG",
+      "width": 548,
+      "height": 626
+    }
+  ]
+}
