@@ -28,7 +28,7 @@
     "press.long": "Full boilerplate; also closes the product page facts.",
     "press.naming": "How to spell the product name in print.",
     "theme.accent": "v2+. Per-app accent as a bare HSL triplet (\"H S% L%\"), contrast-gated at validation.",
-    "marketing.sections": "v2+. Ordered typed sections the product page renders through one renderer; kinds: features, steps, stats, showcase, table, faq, prose, terminal.",
+    "marketing.sections": "v2+. Ordered typed sections the product page renders through one renderer; kinds: features, steps, stats, showcase, table, faq, prose, terminal. Each may carry an optional \"lift\" beside its heading — the italic-serif half of the duet, one per heading, on the line carrying the promise. The page alternates its own grounds across this run; a kit chooses what to say, never where the bands fall.",
     "downloads": "v3+. 1-4 real ways to get the product. The FIRST entry must be url-based — it renders as the hero primary button. Absent = the hero falls back to the repository link.",
     "downloads[].label": "Button or chip text.",
     "downloads[].kind": "appstore | releases | dmg | zip | exe | appimage | website | repo (url-based) or brew | script (command-based).",
@@ -79,6 +79,7 @@
     "sections": [
       {
         "kind": "steps",
+        "lift": "then never again.",
         "heading": "Two commands, once",
         "intro": "The stock configuration is one line in the wrong file — this puts it in the right one.",
         "steps": [
@@ -98,6 +99,7 @@
       },
       {
         "kind": "table",
+        "lift": "in the order it does it.",
         "heading": "What the script actually does",
         "columns": [
           "Stage",
@@ -141,6 +143,7 @@
       },
       {
         "kind": "prose",
+        "lift": "one fewer keylogger surface.",
         "heading": "The security answer",
         "body": "sudo still requires local presence and a biometric match, and falls back to your password rather than around it. The meaningful change is that a sudo prompt no longer traverses your keyboard, which removes one keylogger surface. Anyone who can already run code as you is not stopped by either mechanism.\n\nThe install script is short and readable, and it is the thing running as root: read it before you run it. Preflight, backup, validation and rollback are all in the table above, not in the marketing copy."
       },
