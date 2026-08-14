@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "product": {
     "slug": "touch-id-for-sudo",
     "name": "Touch ID for sudo",
@@ -28,6 +28,102 @@
     "short": "Touch ID for sudo enables fingerprint authentication for sudo on macOS 14+, including inside tmux. MIT licensed.",
     "long": "macOS can authenticate sudo with Touch ID, but the configuration does not survive system updates and breaks inside tmux. Touch ID for sudo sets it up correctly, keeps it working across updates, and handles the tmux case that the stock configuration misses. MIT licensed and open source.",
     "naming": "Written \"Touch ID for sudo\" — \"Touch ID\" capitalised as Apple styles it, \"sudo\" always lowercase. Touch ID is an Apple trademark and the project is unaffiliated."
+  },
+  "theme": {
+    "accent": "347 74% 47%"
+  },
+  "marketing": {
+    "sections": [
+      {
+        "kind": "steps",
+        "heading": "Two commands, once",
+        "intro": "The stock configuration is one line in the wrong file — this puts it in the right one.",
+        "steps": [
+          {
+            "title": "brew install",
+            "body": "The formula arrives from the studio's tap, with pam-reattach alongside it for the tmux case."
+          },
+          {
+            "title": "sudo touchid-sudo",
+            "body": "Writes the pam_tid.so line into sudo_local, the file macOS 14+ created for exactly this kind of local override. Unrelated lines are preserved."
+          },
+          {
+            "title": "Then just use sudo",
+            "body": "A fingerprint instead of a password — in a terminal, in an IDE, and inside tmux, which is the case the stock setup always missed."
+          }
+        ]
+      },
+      {
+        "kind": "table",
+        "heading": "What the script actually does",
+        "columns": [
+          "Stage",
+          "What happens"
+        ],
+        "rows": [
+          [
+            "Preflight",
+            "macOS, Sonoma-or-later include line, pam_tid.so present, fingerprint enrolled"
+          ],
+          [
+            "Backup",
+            "previous config saved to /etc/pam.d/sudo_local.bak"
+          ],
+          [
+            "Validation",
+            "runs sudo -n as you afterwards and inspects the result for PAM errors"
+          ],
+          [
+            "Rollback",
+            "restores the backup automatically if validation fails, and exits non-zero"
+          ],
+          [
+            "Idempotent",
+            "re-running changes nothing; unrelated lines in sudo_local are preserved"
+          ]
+        ],
+        "mono": [
+          1
+        ]
+      },
+      {
+        "kind": "showcase",
+        "asset": "touchid-prompt.png",
+        "caption": "The prompt, inside tmux — the case the stock configuration misses."
+      },
+      {
+        "kind": "terminal",
+        "command": "brew install abd3lraouf-studios/tap/macos-touchid-sudo\nsudo touchid-sudo",
+        "note": "Homebrew is the recommended path; a curl installer is in the README."
+      },
+      {
+        "kind": "prose",
+        "heading": "The security answer",
+        "body": "sudo still requires local presence and a biometric match, and falls back to your password rather than around it. The meaningful change is that a sudo prompt no longer traverses your keyboard, which removes one keylogger surface. Anyone who can already run code as you is not stopped by either mechanism.\n\nThe install script is short and readable, and it is the thing running as root: read it before you run it. Preflight, backup, validation and rollback are all in the table above, not in the marketing copy."
+      },
+      {
+        "kind": "faq",
+        "heading": "Questions",
+        "items": [
+          {
+            "q": "Does it survive macOS updates?",
+            "a": "Yes. sudo_local is the file Apple ships for local PAM overrides, and system updates leave it alone. That is the whole reason the line goes there and not into sudo's own file."
+          },
+          {
+            "q": "How do I undo it?",
+            "a": "sudo touchid-sudo --disable reverts to password-only sudo, then brew uninstall removes the tool."
+          },
+          {
+            "q": "Why doesn't the stock setup cover tmux?",
+            "a": "tmux runs sudo in a server process outside your terminal session, so the Touch ID prompt never reaches it. pam-reattach bridges that, and the installer wires it in when it is present."
+          },
+          {
+            "q": "Is the installer safe to run?",
+            "a": "It runs as root, so read it first — it is one short script. It preflights, backs up sudo_local, validates with sudo -n, and rolls back on any failure."
+          }
+        ]
+      }
+    ]
   },
   "assets": [
     {
