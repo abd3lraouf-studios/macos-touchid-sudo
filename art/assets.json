@@ -79,8 +79,8 @@
     "sections": [
       {
         "kind": "steps",
-        "lift": "then never again.",
         "heading": "Two commands, once",
+        "lift": "then never again.",
         "intro": "The stock configuration is one line in the wrong file — this puts it in the right one.",
         "steps": [
           {
@@ -99,8 +99,8 @@
       },
       {
         "kind": "table",
-        "lift": "in the order it does it.",
         "heading": "What the script actually does",
+        "lift": "in the order it does it.",
         "columns": [
           "Stage",
           "What happens"
@@ -143,8 +143,8 @@
       },
       {
         "kind": "prose",
-        "lift": "one fewer keylogger surface.",
         "heading": "The security answer",
+        "lift": "one fewer keylogger surface.",
         "body": "sudo still requires local presence and a biometric match, and falls back to your password rather than around it. The meaningful change is that a sudo prompt no longer traverses your keyboard, which removes one keylogger surface. Anyone who can already run code as you is not stopped by either mechanism.\n\nThe install script is short and readable, and it is the thing running as root: read it before you run it. Preflight, backup, validation and rollback are all in the table above, not in the marketing copy."
       },
       {
