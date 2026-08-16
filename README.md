@@ -1,12 +1,23 @@
+<!-- BEGIN abd3lraouf-studios:hero -->
 <p align="center">
-  <img src="assets/icon.png" alt="" width="112" height="112">
+    <img src="art/touch-id-for-sudo-icon.png" alt="Touch ID for sudo" height="120">
 </p>
 
-# macos-touchid-sudo
+<h1 align="center">Touch ID for sudo</h1>
 
-Authenticate `sudo` with Touch ID instead of typing your password — including inside **tmux**.
+<p align="center">
+    <strong>Enables Touch ID authentication for sudo, and keeps it working inside tmux.</strong><br>
+    macOS 14+ · MIT
+</p>
 
-[**Product page → abd3lraouf.dev/work/touch-id-for-sudo**](https://abd3lraouf.dev/work/touch-id-for-sudo/)
+<p align="center">
+    <a href="https://github.com/abd3lraouf-studios/macos-touchid-sudo"><strong>Get it on GitHub →</strong></a>
+</p>
+
+<p align="center">
+    <a href="https://abd3lraouf.dev/projects/touch-id-for-sudo/">abd3lraouf.dev/projects/touch-id-for-sudo/</a>
+</p>
+<!-- END abd3lraouf-studios:hero -->
 
 <p align="center">
   <img src="docs/touchid-prompt.png" width="320"
@@ -139,9 +150,16 @@ make lint    # shellcheck
 
 The suite runs the real script against fixture files via `TOUCHID_SUDO_*` environment hooks, covering enable, idempotency, disable, line preservation, unsupported systems, and the rollback path. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+<!-- BEGIN abd3lraouf-studios:press -->
 ## Press & marketing assets
 
-Icons and the prompt screenshot live in [`art/`](art/), with the canonical product record — naming, boilerplate and indexed image dimensions — in [`art/assets.json`](art/assets.json). Product page: [abd3lraouf.dev/work/touch-id-for-sudo](https://abd3lraouf.dev/work/touch-id-for-sudo/).
+Touch ID for sudo enables fingerprint authentication for sudo on macOS 14+, including inside tmux. MIT licensed.
+
+**Naming.** Written "Touch ID for sudo" — "Touch ID" capitalised as Apple styles it, "sudo" always lowercase. Touch ID is an Apple trademark and the project is unaffiliated.
+
+The press kit — icons, screen art, boilerplate, the fact sheet and a downloadable
+archive — is at **[abd3lraouf.dev/press/touch-id-for-sudo/](https://abd3lraouf.dev/press/touch-id-for-sudo/)**.
+<!-- END abd3lraouf-studios:press -->
 
 ## License
 
